@@ -5683,6 +5683,11 @@ void wallet2::get_payments(const crypto::hash& payment_id, std::list<wallet2::pa
   });
 }
 //----------------------------------------------------------------------------------------------------
+void wallet2::get_all_payments(wallet2::payment_container& payments) const
+{
+  payments = m_payments;
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::get_payments_min_height_inclusive(
                 std::list<std::pair<crypto::hash,wallet2::payment_details>>& payments,
                 const payment_container& actual_payments,
@@ -5709,6 +5714,11 @@ void wallet2::get_payments(std::list<std::pair<crypto::hash,wallet2::payment_det
   get_payments_min_height_inclusive(payments, m_payments, ++min_height, max_height, subaddr_account, subaddr_indices);
 }
 //----------------------------------------------------------------------------------------------------
+void wallet2::get_all_payments_out(std::unordered_map<crypto::hash, confirmed_transfer_details>& confirmed_txs) const
+{
+  confirmed_txs = m_confirmed_txs;
+}
+//----------------------------------------------------------------------------------------------------
 void wallet2::get_payments_out_min_height_inclusive(
                 std::list<std::pair<crypto::hash,wallet2::confirmed_transfer_details>>& confirmed_payments,
                 const std::unordered_map<crypto::hash, confirmed_transfer_details>& actual_confirmed_txs,
@@ -5726,6 +5736,17 @@ void wallet2::get_payments_out_min_height_inclusive(
       continue;
     confirmed_payments.push_back(*i);
   }
+
+  // TODO Confirm that the following is tha same as the above. If so, replace the above with it.
+//  auto range = std::make_pair(actual_confirmed_txs.begin(), actual_confirmed_txs.end());
+//  std::for_each(range.first, range.second, [&confirmed_payments, &min_height, &max_height, &subaddr_account, &subaddr_indices](const payment_container::value_type& x) {
+//    if (min_height <= x.second.m_block_height && max_height >= x.second.m_block_height &&
+//      (!subaddr_account || *subaddr_account == x.second.m_subaddr_index.major) &&
+//      (!subaddr_indices.empty() && std::count_if(x.second.m_subaddr_indices.begin(), x.second.m_subaddr_indices.end(), [&subaddr_indices](uint32_t index) { return subaddr_indices.count(index) == 1; }) == 0))
+//    {
+//      confirmed_payments.push_back(x);
+//    }
+//  });
 }
 //----------------------------------------------------------------------------------------------------
 void wallet2::get_payments_out(std::list<std::pair<crypto::hash,wallet2::confirmed_transfer_details>>& confirmed_payments,

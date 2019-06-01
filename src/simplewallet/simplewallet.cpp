@@ -7689,7 +7689,11 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
 
   if (in || coinbase) {
     std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-    m_wallet->get_payments(payments, min_height, max_height, m_current_subaddress_account, subaddr_indices);
+
+    tools::wallet2::payment_container actual_payments;
+    m_wallet->get_all_payments(actual_payments);
+
+    m_wallet->get_payments_min_height_inclusive(payments, actual_payments, min_height, max_height, m_current_subaddress_account, subaddr_indices);
     for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
       const tools::wallet2::payment_details &pd = i->second;
       if (!pd.m_coinbase && !in)
@@ -7740,7 +7744,11 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
 
   if (out) {
     std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
-    m_wallet->get_payments_out(payments, min_height, max_height, m_current_subaddress_account, subaddr_indices);
+
+    std::unordered_map<crypto::hash, tools::wallet2::confirmed_transfer_details> actual_confirmed_txs;
+    m_wallet->get_all_payments_out(actual_confirmed_txs);
+
+    m_wallet->get_payments_out_min_height_inclusive(payments, actual_confirmed_txs, min_height, max_height, m_current_subaddress_account, subaddr_indices);
     for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
       const tools::wallet2::confirmed_transfer_details &pd = i->second;
       uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
